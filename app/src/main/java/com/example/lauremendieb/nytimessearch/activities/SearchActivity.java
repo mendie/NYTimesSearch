@@ -1,5 +1,6 @@
-package com.example.lauremendieb.nytimessearch;
+package com.example.lauremendieb.nytimessearch.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -7,10 +8,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 
+import com.example.lauremendieb.nytimessearch.Article;
+import com.example.lauremendieb.nytimessearch.ArticleArrayAdapter;
+import com.example.lauremendieb.nytimessearch.R;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -30,6 +35,7 @@ public class SearchActivity extends AppCompatActivity {
     Button btnSearch;
 
     ArrayList<Article> articles;
+    ArticleArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +53,24 @@ public class SearchActivity extends AppCompatActivity {
         gvResults = (GridView) findViewById(R.id.gvResults);
         btnSearch = (Button) findViewById(R.id.btnSearch);
         articles = new ArrayList<>();
-        
+        adapter = new ArticleArrayAdapter(this,articles);
+        gvResults.setAdapter(adapter);
+
+        // hook up listener for grid click
+        gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+               // create an intent to display  the article
+                Intent i = new Intent(getApplicationContext(), ArticleActivity.class);
+               // get the article to display
+                Article article = articles.get(position);
+               // pass in that article into intent
+                i.putExtra("url", article.getWebUrl());
+               // launch the activity
+                startActivity(i);
+            }
+        });
+        }
     }
 
     @Override
@@ -93,7 +116,9 @@ public class SearchActivity extends AppCompatActivity {
 
                 try {
                     articleJsonResults = response.getJSONObject("response").getJSONArray("docs");
-                    Log.d("DEBUG", articleJsonResults.toString());
+                    adapter.addAll(Article.fromJSONArray(articleJsonResults));
+                    Log.d("DEBUG", articles.toString());
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
