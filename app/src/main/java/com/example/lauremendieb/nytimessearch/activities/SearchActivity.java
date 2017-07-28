@@ -65,13 +65,12 @@ public class SearchActivity extends AppCompatActivity {
                // get the article to display
                 Article article = articles.get(position);
                // pass in that article into intent
-                i.putExtra("url", article.getWebUrl());
+                i.putExtra("article", article);
                // launch the activity
                 startActivity(i);
             }
         });
         }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
